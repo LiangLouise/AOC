@@ -58,7 +58,7 @@ class Point:
 def sort_pairs(pairs: List):
     pairs.sort(key=lambda p: p[0])
 
-def connect_points(points: List[Point]):
+def connect_points(points: List[Point], first_n_pairs=1000):
     # circuits = set()
     pairs = []
     for a in range(len(points)):
@@ -70,7 +70,7 @@ def connect_points(points: List[Point]):
             pairs.append((dis, point_a, point_b))
 
     sort_pairs(pairs)
-    for pair in pairs[:1000]:
+    for pair in pairs[:first_n_pairs]:
         dis, point_a, point_b = pair
 
         if not point_a.connected(point_b):
@@ -86,11 +86,36 @@ def connect_points(points: List[Point]):
 
     return res
 
+def connect_points_p2(points: List[Point]):
+    pairs = []
+    for a in range(len(points)):
+        for b in range(a+1, len(points)):
+            point_a = points[a]
+            point_b = points[b]
+
+            dis = point_a.get_dis(point_b)
+            pairs.append((dis, point_a, point_b))
+
+    sort_pairs(pairs)
+    last_a_x = 0
+    last_b_x = 0
+    for pair in pairs:
+        dis, point_a, point_b = pair
+
+        if not point_a.connected(point_b):
+            point_a.connect(point_b)
+            last_a_x = point_a.x
+            last_b_x = point_b.x
+
+    return last_a_x * last_b_x
+
+
 if __name__ == "__main__":
     points = []
-    with open("E:\\repos\\AOC\\2025\\d8\\input.txt", "r") as f:
+    with open("input.txt", "r") as f:
         for line in f:
             x, y, z = line.split(",")
             points.append(Point(int(x), int(y), int(z)))
 
     print(connect_points(points))
+    print(connect_points_p2(points))
