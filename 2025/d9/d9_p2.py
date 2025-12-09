@@ -18,11 +18,11 @@ def choose_biggest_rec(idxes: List[Tuple[int]]):
                 x_curr, y_curr = idxes[c]
                 x_next, y_next = idxes[(c+1) % len(idxes)]
 
+                # check any intersection
                 if (x_min < max(x_curr, x_next) and \
                     x_max > min(x_curr, x_next) and \
                     y_min < max(y_curr, y_next) and \
                     y_max > min(y_curr, y_next)):
-
                     valid = False
                     break
 
