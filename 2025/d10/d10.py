@@ -1,6 +1,8 @@
 from typing import List
 from math import inf
 import copy
+import pulp as p
+
 
 class LightCmd:
 
@@ -94,22 +96,42 @@ class LightCmd:
         self._reset_light_state()
         return res
 
+    def solve_part2(self):
+        lp_prob = p.LpProblem('small_steps', p.LpMinimize)
+        lp_vars = []
+        for i in range(len(self.actions)):
+            var = p.LpVariable(str(i), lowBound=0, cat='Integer')
+            lp_vars.append(var)
+
+        light_eqs = [list() for _ in range(self.light_count)]
+        for i in range(len(self.actions)):
+            for l_idx in self.actions[i]:
+                light_eqs[l_idx].append(lp_vars[i])
+        for i in range(self.light_count):
+            lp_prob += (p.lpSum(light_eqs[i]) == self.jol_req[i], str(i))
+
+        lp_prob += (p.lpSum(lp_vars), "minimize all var")
+
+        lp_prob.solve()
+        total = 0
+        for v in lp_prob.variables():
+            if v.varValue is not None:
+                total += v.varValue
+        return total
+
 if __name__ == "__main__":
     light_cmds = []
-    with open("D:\\local_repo\\AOC\\2025\\d10\\input_Test.txt", "r") as f:
+    with open("input.txt", "r") as f:
         for line in f:
             cmds = line.rstrip("\n").split(" ")
             light_cmds.append(LightCmd(cmds))
 
-
-    total_sum = 0
+    total_sum_p1 = 0
+    total_sum_p2 = 0
 
     for l in light_cmds:
-        # print("light_count", l.light_count)
-        # print("exp_light_state", l.exp_light_state)
-        # print("actions", l.actions)
-        steps = l.find_min_steps()
-        print("actions", steps)
-        total_sum += steps
+        total_sum_p1 += l.find_min_steps()
+        total_sum_p2 += l.solve_part2()
 
-    print(total_sum)
+    print("p1", total_sum_p1)
+    print("p2", total_sum_p2)
